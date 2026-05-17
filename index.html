@@ -72,15 +72,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .slot:nth-child(even){background:rgba(236,253,245,.5)}
 .slot:nth-child(odd){background:rgba(240,253,244,.3)}
 .slot .time{width:58px;min-width:58px;padding:6px 5px;font-size:10px;font-weight:700;color:var(--primary-dark);text-align:right;border-right:2px solid var(--border);background:rgba(209,250,229,.25)}
-.slot .content{flex:1;padding:4px 8px;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px;align-items:center;position:relative;min-height:56px}
+.slot .content{flex:1;padding:0;cursor:pointer;display:flex;flex-direction:column;position:relative;min-height:56px}
 .slot .content:empty::after{content:'';display:block;width:100%;height:100%}
-.chip{display:inline-flex;align-items:center;gap:4px;color:#FFF;padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;width:100%;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.chip:active{transform:scale(.98)}
-.chip.online{background:linear-gradient(135deg,rgba(124,58,237,.75),rgba(109,40,217,.75))}
-.chip.offline{background:linear-gradient(135deg,rgba(244,63,94,.7),rgba(225,29,72,.7))}
-.chip.call{background:linear-gradient(135deg,rgba(14,165,233,.7),rgba(2,132,199,.7))}
-.slot .add-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:var(--primary);color:#FFF;border:none;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center}
+.chip{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:0;font-size:12px;font-weight:600;cursor:pointer;width:100%;flex:1;min-height:56px;border-left:4px solid transparent;box-sizing:border-box}
+.chip:active{opacity:.85}
+.chip.online{background:#EDE9FE !important;color:#6D28D9;border-left-color:#8B5CF6}
+.chip.offline{background:#FFE4E6 !important;color:#BE123C;border-left-color:#F43F5E}
+.chip.call{background:#E0F2FE !important;color:#0369A1;border-left-color:#0EA5E9}
+.slot .add-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:var(--primary);color:#FFF;border:none;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(5,150,105,.3)}
 .slot .content:hover .add-btn{display:flex}
+.slot.has-event{background:transparent !important}
 
 /* TASKS */
 .tasks-wrap{padding:12px 14px 90px}
@@ -221,7 +222,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <h1><i class="fas fa-users"></i> Team Calendar</h1>
       <span class="user-pill" id="u-pill">User <span class="role-badge" id="u-role">member</span></span>
     </div>
-    <div class="sync-row"><span class="dot" id="dot"></span><span id="sync-txt">Synced</span></div>
+    <div class="sync-row"><span class="dot" id="dot"></span><span id="sync-txt">Synced</span><span style="margin-left:auto;opacity:.5;font-size:9px">v3</span></div>
   </div>
   <!-- INSTALL BANNER -->
   <div id="install-banner" style="display:none;background:linear-gradient(135deg,#E31E24,#C41920);padding:10px 16px;display:none;align-items:center;justify-content:space-between;gap:10px">
@@ -501,7 +502,7 @@ function fmtT(t){if(!t)return'';const[h,m]=t.split(':');const hr=+h;return `${hr
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 function updateBadge(){const n=Object.values(tasks).filter(t=>t.status==='attention').length;const b=document.getElementById('t-badge');if(n>0){b.textContent=n;b.style.display='';}else b.style.display='none';}
 function getWeek(){const d=new Date(curDate);const day=d.getDay();d.setDate(d.getDate()-day+(day===0?-6:1));const ds=[];for(let i=0;i<7;i++){ds.push(new Date(d));d.setDate(d.getDate()+1);}return ds;}
-function slotsFor(ds,t){return Object.entries(events).filter(([id,ev])=>ev.date===ds&&ev.start===t);}
+function slotsFor(ds,t){return Object.entries(events).filter(([id,ev])=>{if(ev.date!==ds)return false;return ev.start<=t&&t<ev.end;});}
 function populateSelects(){['me-start','me-end'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='';SLOTS.forEach(t=>s.innerHTML+=`<option value="${t}">${fmtT(t)}</option>`);});}
 function populateAssign(){const ids=['mt-assign','mr-assign'];ids.forEach(id=>{const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">Unassigned</option>';users.forEach(u=>s.innerHTML+=`<option value="${esc(u.username)}">${esc(u.username)} (${u.role})</option>`);});}
 function autoEnd(){const v=document.getElementById('me-start').value;const i=SLOTS.indexOf(v);if(i>=0&&i<SLOTS.length-1)document.getElementById('me-end').value=SLOTS[i+1];}
@@ -514,7 +515,7 @@ function renderDaily(){
   SLOTS.forEach(t=>{
     const se=slotsFor(ds,t);let chips='';
     se.forEach(([id,ev])=>{const ic={online:'fa-video',offline:'fa-building',call:'fa-phone'};
-      chips+=`<span class="chip ${ev.type||'online'}" onclick="event.stopPropagation();editEv('${id}')"><i class="fas ${ic[ev.type]||'fa-calendar'}"></i> ${esc(ev.title)}${ev.person?' — '+esc(ev.person):''}</span>`;});
+      chips+=`<div class="chip ${ev.type||'online'}" onclick="event.stopPropagation();editEv('${id}')"><i class="fas ${ic[ev.type]||'fa-calendar'}"></i> ${esc(ev.title)}${ev.person?' — '+esc(ev.person):''}</div>`;});
     h+=`<div class="slot"><div class="time">${fmtT(t)}</div><div class="content" onclick="openEvSlot('${ds}','${t}')">${chips}${!chips?'<button class="add-btn"><i class="fas fa-plus"></i></button>':''}</div></div>`;
   });
   c.innerHTML=h;
@@ -529,10 +530,12 @@ function renderWeekly(){
     h+=`<div style="${tc}padding:6px 3px;text-align:center;border-bottom:2px solid var(--border);border-right:1px solid var(--border);font-size:10px;font-weight:700"><div style="font-size:9px;opacity:.7">${dn[i]}</div>${d.getDate()}</div>`;});
   SLOTS.forEach(t=>{
     h+=`<div style="padding:2px 3px;font-size:8px;font-weight:700;color:var(--primary-dark);text-align:right;border-right:2px solid var(--border);border-bottom:1px solid rgba(209,250,229,.5);background:rgba(209,250,229,.15);min-height:34px;display:flex;align-items:center;justify-content:flex-end">${fmtT(t)}</div>`;
-    dates.forEach(d=>{const ds=fmtD(d),tc=isToday(d)?'background:rgba(52,211,153,.06);':'background:rgba(240,253,244,.4);';const se=slotsFor(ds,t);let ce='';
-      se.forEach(([id,ev])=>{const bg=ev.type==='call'?'rgba(14,165,233,.15)':ev.type==='offline'?'rgba(244,63,94,.12)':'rgba(124,58,237,.12)';const clr=ev.type==='call'?'#0284C7':ev.type==='offline'?'#E11D48':'#6D28D9';
-        ce+=`<div onclick="event.stopPropagation();editEv('${id}')" style="background:${bg};color:${clr};padding:2px 4px;border-radius:4px;font-size:8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:1px;cursor:pointer;border-left:2px solid ${clr}">${esc(ev.title)}</div>`;});
-      h+=`<div style="${tc}border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.3);padding:1px;min-height:34px;cursor:pointer" onclick="openEvSlot('${ds}','${t}')">${ce}</div>`;});
+    dates.forEach(d=>{const ds=fmtD(d);const se=slotsFor(ds,t);
+      // If cell has event, fill entire cell with pastel color
+      if(se.length>0){const ev=se[0][1];const id=se[0][0];const bg=ev.type==='call'?'#E0F2FE':ev.type==='offline'?'#FFE4E6':'#EDE9FE';const clr=ev.type==='call'?'#0369A1':ev.type==='offline'?'#BE123C':'#6D28D9';const brd=ev.type==='call'?'#0EA5E9':ev.type==='offline'?'#F43F5E':'#8B5CF6';
+        h+=`<div onclick="event.stopPropagation();editEv('${id}')" style="background:${bg};border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.3);border-left:3px solid ${brd};padding:3px 4px;min-height:34px;cursor:pointer;display:flex;align-items:center"><div style="color:${clr};font-size:8px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.title)}</div></div>`;
+      }else{const tc=isToday(d)?'background:rgba(52,211,153,.06);':'background:rgba(240,253,244,.4);';
+        h+=`<div style="${tc}border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.3);padding:1px;min-height:34px;cursor:pointer" onclick="openEvSlot('${ds}','${t}')"></div>`;}});
   });
   h+='</div>';c.innerHTML=h;
 }
