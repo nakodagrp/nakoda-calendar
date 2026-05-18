@@ -515,7 +515,7 @@ function renderDaily(){
   SLOTS.forEach(t=>{
     const se=slotsFor(ds,t);let chips='';
     se.forEach(([id,ev])=>{const ic={online:'fa-video',offline:'fa-building',call:'fa-phone'};
-      const isFirst=ev.start===t;
+      const si=SLOTS.indexOf(t);const prevSlot=si>0?SLOTS[si-1]:null;const isFirst=!prevSlot||!(ev.start<=prevSlot&&prevSlot<ev.end);
       chips+=`<div class="chip ${ev.type||'online'}" onclick="event.stopPropagation();editEv('${id}')">${isFirst?`<i class="fas ${ic[ev.type]||'fa-calendar'}"></i> ${esc(ev.title)}${ev.person?' — '+esc(ev.person):''}`:''}</div>`;});
     h+=`<div class="slot"><div class="time">${fmtT(t)}</div><div class="content" onclick="openEvSlot('${ds}','${t}')">${chips}${!chips?'<button class="add-btn"><i class="fas fa-plus"></i></button>':''}</div></div>`;
   });
@@ -533,7 +533,7 @@ function renderWeekly(){
     h+=`<div style="padding:2px 3px;font-size:8px;font-weight:700;color:var(--primary-dark);text-align:right;border-right:2px solid var(--border);border-bottom:1px solid rgba(209,250,229,.5);background:rgba(209,250,229,.15);min-height:34px;display:flex;align-items:center;justify-content:flex-end">${fmtT(t)}</div>`;
     dates.forEach(d=>{const ds=fmtD(d);const se=slotsFor(ds,t);
       if(se.length>0){const ev=se[0][1];const id=se[0][0];const bg=ev.type==='call'?'#E0F2FE':ev.type==='offline'?'#FFE4E6':'#EDE9FE';const clr=ev.type==='call'?'#0369A1':ev.type==='offline'?'#BE123C':'#6D28D9';const brd=ev.type==='call'?'#0EA5E9':ev.type==='offline'?'#F43F5E':'#8B5CF6';
-        const isFirst=ev.start===t;
+        const si=SLOTS.indexOf(t);const prevSlot=si>0?SLOTS[si-1]:null;const isFirst=!prevSlot||!(ev.start<=prevSlot&&prevSlot<ev.end);
         h+=`<div onclick="event.stopPropagation();editEv('${id}')" style="background:${bg};border-right:1px solid rgba(209,250,229,.5);border-bottom:${isFirst?'none':'1px solid rgba(209,250,229,.2)'};border-left:3px solid ${brd};padding:3px 4px;min-height:34px;cursor:pointer;display:flex;align-items:center">${isFirst?`<div style="color:${clr};font-size:8px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.title)}</div>`:''}</div>`;
       }else{const tc=isToday(d)?'background:rgba(52,211,153,.06);':'background:rgba(240,253,244,.4);';
         h+=`<div style="${tc}border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.3);padding:1px;min-height:34px;cursor:pointer" onclick="openEvSlot('${ds}','${t}')"></div>`;}});
