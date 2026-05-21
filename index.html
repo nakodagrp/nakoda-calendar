@@ -294,6 +294,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <div class="fg"><label>Start</label><select id="me-start" onchange="autoEnd()"></select></div>
     <div class="fg"><label>End</label><select id="me-end"></select></div>
   </div>
+  <div id="me-avail-hint" style="font-size:10px;color:var(--text-light);margin-top:-8px;margin-bottom:10px;padding:0 2px"><i class="fas fa-info-circle" style="color:var(--primary)"></i> <span>Only available time slots are shown</span></div>
   <div class="fg"><label>Type</label><select id="me-type">
     <option value="online">🟣 Online Meeting</option><option value="offline">🔴 Offline Meeting</option><option value="call">🔵 Call</option>
   </select></div>
@@ -319,6 +320,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <div class="fg"><label>Start Time</label><select id="mt-start"><option value="">— No schedule —</option></select></div>
       <div class="fg"><label>End Time</label><select id="mt-end"><option value="">—</option></select></div>
     </div>
+    <div id="mt-avail-hint" style="font-size:10px;color:var(--text-light);margin-top:-4px;padding:0 2px"><i class="fas fa-info-circle" style="color:var(--orange)"></i> <span>Only available time slots are shown</span></div>
   </div>
   <div class="modal-btns"><button class="btn btn-outline" onclick="closeM('m-task')">Cancel</button><button class="btn btn-primary" onclick="saveTask()"><i class="fas fa-check"></i> Save</button></div>
   <div id="mt-del" style="display:none;margin-top:10px"><button class="btn btn-danger btn-sm" onclick="delTask()" style="width:100%;justify-content:center"><i class="fas fa-trash"></i> Delete</button></div>
@@ -626,6 +628,75 @@ function populateSelects(){
   document.getElementById('mt-start').innerHTML=_timeOptsHTMLNoSched;
   document.getElementById('mt-end').innerHTML=_timeOptsHTMLEnd;
 }
+
+// ═══ AVAILABLE TIME FILTERING ═══
+// Get all occupied 5-min slots on a given date, excluding a specific event/task being edited
+function getOccupiedSlots(dateStr, excludeId){
+  const occupied=new Set();
+  // Check events
+  Object.entries(events).forEach(([id,ev])=>{
+    if(excludeId && id===excludeId) return;
+    if(ev.date!==dateStr) return;
+    if(!ev.start||!ev.end) return;
+    TIME_OPTS.forEach(t=>{if(t>=ev.start && t<ev.end) occupied.add(t);});
+  });
+  // Check scheduled tasks
+  Object.entries(tasks).forEach(([id,tk])=>{
+    if(excludeId && id===excludeId) return;
+    const sd=tk.scheduleDate||tk.dueDate;
+    if(sd!==dateStr) return;
+    if(!tk.start||!tk.end) return;
+    TIME_OPTS.forEach(t=>{if(t>=tk.start && t<tk.end) occupied.add(t);});
+  });
+  return occupied;
+}
+
+// Build filtered time options showing only available slots
+function buildAvailableTimeOpts(dateStr, excludeId, includeNoSchedule){
+  const occupied=getOccupiedSlots(dateStr, excludeId);
+  const availCount=TIME_OPTS.filter(t=>!occupied.has(t)).length;
+  let startH=includeNoSchedule?'<option value="">— No schedule —</option>':'';
+  let endH=includeNoSchedule?'<option value="">—</option>':'';
+  TIME_OPTS.forEach(t=>{
+    if(!occupied.has(t)){
+      const opt=`<option value="${t}">${fmtT(t)}</option>`;
+      startH+=opt;
+      endH+=opt;
+    }
+  });
+  // If ALL slots are occupied, show a message
+  if(availCount===0){
+    startH+='<option value="" disabled>⚠ All slots booked</option>';
+  }
+  return {startHTML:startH, endHTML:endH, occupied};
+}
+
+// Populate event modal times with available slots only
+function populateEventTimes(dateStr, excludeId){
+  const {startHTML, endHTML}=buildAvailableTimeOpts(dateStr||fmtD(curDate), excludeId, false);
+  document.getElementById('me-start').innerHTML=startHTML;
+  document.getElementById('me-end').innerHTML=endHTML;
+}
+
+// Populate task modal times with available slots only
+function populateTaskTimes(dateStr, excludeId){
+  const {startHTML, endHTML}=buildAvailableTimeOpts(dateStr||'', excludeId, true);
+  document.getElementById('mt-start').innerHTML=startHTML;
+  document.getElementById('mt-end').innerHTML=endHTML;
+}
+
+// Update end time dropdown to show only slots AFTER selected start (and still available)
+function populateFilteredEnd(startVal, dateStr, excludeId, endSelectId, includeNoSchedule){
+  const occupied=getOccupiedSlots(dateStr, excludeId);
+  let h=includeNoSchedule?'<option value="">—</option>':'';
+  TIME_OPTS.forEach(t=>{
+    if(t>startVal && !occupied.has(t)){
+      h+=`<option value="${t}">${fmtT(t)}</option>`;
+    }
+  });
+  // Also include the slot right after the last contiguous available block for proper end time
+  document.getElementById(endSelectId).innerHTML=h;
+}
 function populateAssign(){
   const ids=['mt-assign','mr-assign'];
   ids.forEach(id=>{
@@ -639,9 +710,14 @@ function populateAssign(){
     if(curVal){s.value=curVal;}
   });
 }
-function autoEnd(){const v=document.getElementById('me-start').value;const i=TIME_OPTS.indexOf(v);if(i>=0&&i+6<TIME_OPTS.length)document.getElementById('me-end').value=TIME_OPTS[i+6];else if(i>=0)document.getElementById('me-end').value=TIME_OPTS[TIME_OPTS.length-1];}
-function autoTaskEnd(){const v=document.getElementById('mt-start').value;if(!v){document.getElementById('mt-end').value='';return;}const i=TIME_OPTS.indexOf(v);if(i>=0&&i+6<TIME_OPTS.length)document.getElementById('mt-end').value=TIME_OPTS[i+6];else if(i>=0)document.getElementById('mt-end').value=TIME_OPTS[TIME_OPTS.length-1];}
+function autoEnd(){const v=document.getElementById('me-start').value;if(!v)return;const dateStr=document.getElementById('me-date').value;populateFilteredEnd(v,dateStr,editEvId,'me-end',false);const endSel=document.getElementById('me-end');const i=TIME_OPTS.indexOf(v);const autoVal=i>=0&&i+6<TIME_OPTS.length?TIME_OPTS[i+6]:TIME_OPTS[TIME_OPTS.length-1];if(endSel.querySelector(`option[value="${autoVal}"]`))endSel.value=autoVal;else if(endSel.options.length>0)endSel.value=endSel.options[0].value;}
+// Re-filter event times when date changes
+document.getElementById('me-date').addEventListener('change',function(){const d=this.value;if(d){populateEventTimes(d,editEvId);const s=document.getElementById('me-start');if(s.options.length>0){s.selectedIndex=0;autoEnd();}}});
+function autoTaskEnd(){const v=document.getElementById('mt-start').value;if(!v){document.getElementById('mt-end').value='';return;}const dateStr=document.getElementById('mt-sched-date').value||document.getElementById('mt-due').value;populateFilteredEnd(v,dateStr,editTaskId,'mt-end',true);const endSel=document.getElementById('mt-end');const i=TIME_OPTS.indexOf(v);const autoVal=i>=0&&i+6<TIME_OPTS.length?TIME_OPTS[i+6]:TIME_OPTS[TIME_OPTS.length-1];if(endSel.querySelector(`option[value="${autoVal}"]`))endSel.value=autoVal;else if(endSel.options.length>1)endSel.selectedIndex=1;else if(endSel.options.length>0)endSel.value=endSel.options[0].value;}
 document.getElementById('mt-start').addEventListener('change',autoTaskEnd);
+// Re-filter task times when schedule date or due date changes
+document.getElementById('mt-sched-date').addEventListener('change',function(){const d=this.value||document.getElementById('mt-due').value;if(d){populateTaskTimes(d,editTaskId);document.getElementById('mt-start').value='';document.getElementById('mt-end').value='';}});
+document.getElementById('mt-due').addEventListener('change',function(){const schedDate=document.getElementById('mt-sched-date').value;if(!schedDate){const d=this.value;if(d){populateTaskTimes(d,editTaskId);document.getElementById('mt-start').value='';document.getElementById('mt-end').value='';}}});
 function fabAction(){if(view==='tasks')openTaskM();else if(view==='recurring')openRecurM();else if(view==='team')openUserM();else openEvM();}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
@@ -1118,9 +1194,9 @@ async function delUser(){
 }
 
 // ═══ EVENT MODAL ═══
-function openEvM(){editEvId=null;document.getElementById('me-title').textContent='Schedule Meeting';document.getElementById('me-name').value='';document.getElementById('me-person').value='';document.getElementById('me-date').value=fmtD(curDate);document.getElementById('me-start').value='09:00';autoEnd();document.getElementById('me-type').value='online';document.getElementById('me-del').style.display='none';document.getElementById('m-event').classList.add('on');}
-function openEvSlot(d,t){openEvM();document.getElementById('me-date').value=d;document.getElementById('me-start').value=t;autoEnd();}
-function editEv(id){editEvId=id;const ev=events[id];if(!ev)return;document.getElementById('me-title').textContent='Edit Meeting';document.getElementById('me-name').value=ev.title;document.getElementById('me-person').value=ev.person||'';document.getElementById('me-date').value=ev.date;document.getElementById('me-start').value=ev.start;document.getElementById('me-end').value=ev.end;document.getElementById('me-type').value=ev.type||'online';document.getElementById('me-del').style.display='';document.getElementById('m-event').classList.add('on');}
+function openEvM(){editEvId=null;document.getElementById('me-title').textContent='Schedule Meeting';document.getElementById('me-name').value='';document.getElementById('me-person').value='';const dateVal=fmtD(curDate);document.getElementById('me-date').value=dateVal;populateEventTimes(dateVal,null);const startSel=document.getElementById('me-start');if(startSel.querySelector('option[value="09:00"]'))startSel.value='09:00';else if(startSel.options.length>0)startSel.value=startSel.options[0].value;autoEnd();document.getElementById('me-type').value='online';document.getElementById('me-del').style.display='none';document.getElementById('m-event').classList.add('on');}
+function openEvSlot(d,t){editEvId=null;document.getElementById('me-title').textContent='Schedule Meeting';document.getElementById('me-name').value='';document.getElementById('me-person').value='';document.getElementById('me-date').value=d;populateEventTimes(d,null);const startSel=document.getElementById('me-start');if(startSel.querySelector(`option[value="${t}"]`))startSel.value=t;else if(startSel.options.length>0)startSel.value=startSel.options[0].value;autoEnd();document.getElementById('me-type').value='online';document.getElementById('me-del').style.display='none';document.getElementById('m-event').classList.add('on');}
+function editEv(id){editEvId=id;const ev=events[id];if(!ev)return;document.getElementById('me-title').textContent='Edit Meeting';document.getElementById('me-name').value=ev.title;document.getElementById('me-person').value=ev.person||'';document.getElementById('me-date').value=ev.date;populateEventTimes(ev.date,id);document.getElementById('me-start').value=ev.start;document.getElementById('me-end').value=ev.end;document.getElementById('me-type').value=ev.type||'online';document.getElementById('me-del').style.display='';document.getElementById('m-event').classList.add('on');}
 async function saveEv(){
   const title=document.getElementById('me-name').value.trim();if(!title){alert('Enter a title');return;}
   const data={id:editEvId||'',title,person:document.getElementById('me-person').value.trim(),date:document.getElementById('me-date').value,start:document.getElementById('me-start').value,end:document.getElementById('me-end').value,type:document.getElementById('me-type').value,createdBy:USER,updatedAt:new Date().toISOString()};
@@ -1136,8 +1212,8 @@ async function delEv(){
 }
 
 // ═══ TASK MODAL ═══
-function openTaskM(){editTaskId=null;document.getElementById('mt-title').textContent='Add Task';document.getElementById('mt-name').value='';document.getElementById('mt-desc').value='';document.getElementById('mt-assign').value='';document.getElementById('mt-prio').value='medium';document.getElementById('mt-due').value='';document.getElementById('mt-status').value='pending';document.getElementById('mt-sched-date').value='';document.getElementById('mt-start').value='';document.getElementById('mt-end').value='';document.getElementById('mt-del').style.display='none';document.getElementById('m-task').classList.add('on');}
-function editTask(id){editTaskId=id;const t=tasks[id];if(!t)return;document.getElementById('mt-title').textContent='Edit Task';document.getElementById('mt-name').value=t.title;document.getElementById('mt-desc').value=t.description||'';document.getElementById('mt-assign').value=t.assignedTo||'';document.getElementById('mt-prio').value=t.priority||'medium';document.getElementById('mt-due').value=t.dueDate||'';document.getElementById('mt-status').value=t.status||'pending';document.getElementById('mt-sched-date').value=t.scheduleDate||'';document.getElementById('mt-start').value=t.start||'';document.getElementById('mt-end').value=t.end||'';document.getElementById('mt-del').style.display='';document.getElementById('m-task').classList.add('on');}
+function openTaskM(){editTaskId=null;document.getElementById('mt-title').textContent='Add Task';document.getElementById('mt-name').value='';document.getElementById('mt-desc').value='';document.getElementById('mt-assign').value='';document.getElementById('mt-prio').value='medium';document.getElementById('mt-due').value='';document.getElementById('mt-status').value='pending';document.getElementById('mt-sched-date').value='';populateTaskTimes('',null);document.getElementById('mt-start').value='';document.getElementById('mt-end').value='';document.getElementById('mt-del').style.display='none';document.getElementById('m-task').classList.add('on');}
+function editTask(id){editTaskId=id;const t=tasks[id];if(!t)return;document.getElementById('mt-title').textContent='Edit Task';document.getElementById('mt-name').value=t.title;document.getElementById('mt-desc').value=t.description||'';document.getElementById('mt-assign').value=t.assignedTo||'';document.getElementById('mt-prio').value=t.priority||'medium';document.getElementById('mt-due').value=t.dueDate||'';document.getElementById('mt-status').value=t.status||'pending';document.getElementById('mt-sched-date').value=t.scheduleDate||'';const schedDate=t.scheduleDate||t.dueDate||'';populateTaskTimes(schedDate,id);document.getElementById('mt-start').value=t.start||'';document.getElementById('mt-end').value=t.end||'';document.getElementById('mt-del').style.display='';document.getElementById('m-task').classList.add('on');}
 async function saveTask(){
   const title=document.getElementById('mt-name').value.trim();if(!title){alert('Enter a title');return;}
   const dueDate=document.getElementById('mt-due').value;
