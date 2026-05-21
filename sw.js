@@ -1,5 +1,5 @@
 // Service Worker for Team Calendar & Task Manager PWA
-const CACHE_NAME = 'team-cal-v6';
+const CACHE_NAME = 'team-cal-v7';
 const ASSETS = [
   'index.html',
   'TeamCalendar.html',
@@ -39,6 +39,20 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => caches.match(event.request))
   );
+});
+
+// Message from main app (notification fallback for mobile)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'notify') {
+    self.registration.showNotification(event.data.title, {
+      body: event.data.body,
+      icon: 'icon-192.png',
+      badge: 'icon-192.png',
+      vibrate: [200, 100, 200],
+      tag: event.data.title,
+      renotify: true
+    });
+  }
 });
 
 // Push notifications

@@ -72,15 +72,17 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .slot:nth-child(even){background:rgba(236,253,245,.5)}
 .slot:nth-child(odd){background:rgba(240,253,244,.3)}
 .slot .time{width:58px;min-width:58px;padding:6px 5px;font-size:10px;font-weight:700;color:var(--primary-dark);text-align:right;border-right:2px solid var(--border);background:rgba(209,250,229,.25)}
-.slot .content{flex:1;padding:4px 8px;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px;align-items:center;position:relative;min-height:56px}
+.slot .content{flex:1;padding:0;cursor:pointer;display:flex;flex-direction:column;position:relative;min-height:56px}
 .slot .content:empty::after{content:'';display:block;width:100%;height:100%}
-.chip{display:inline-flex;align-items:center;gap:4px;color:#FFF;padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;width:100%;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.chip:active{transform:scale(.98)}
-.chip.online{background:linear-gradient(135deg,rgba(124,58,237,.75),rgba(109,40,217,.75))}
-.chip.offline{background:linear-gradient(135deg,rgba(244,63,94,.7),rgba(225,29,72,.7))}
-.chip.call{background:linear-gradient(135deg,rgba(14,165,233,.7),rgba(2,132,199,.7))}
-.slot .add-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:var(--primary);color:#FFF;border:none;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center}
+.chip{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:0;font-size:12px;font-weight:600;cursor:pointer;width:100%;flex:1;min-height:56px;border-left:4px solid transparent;box-sizing:border-box}
+.chip:active{opacity:.85}
+.chip.online{background:#EDE9FE !important;color:#6D28D9;border-left-color:#8B5CF6}
+.chip.offline{background:#FFE4E6 !important;color:#BE123C;border-left-color:#F43F5E}
+.chip.call{background:#E0F2FE !important;color:#0369A1;border-left-color:#0EA5E9}
+.chip.task-chip{background:#FEF3C7 !important;color:#92400E;border-left-color:#F59E0B}
+.slot .add-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:var(--primary);color:#FFF;border:none;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(5,150,105,.3)}
 .slot .content:hover .add-btn{display:flex}
+.slot.has-event{background:transparent !important}
 
 /* TASKS */
 .tasks-wrap{padding:12px 14px 90px}
@@ -91,8 +93,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .filters button.on{border-color:var(--primary);background:var(--primary);color:#FFF;box-shadow:0 3px 8px rgba(5,150,105,.3)}
 .filters button.on-accent{border-color:var(--accent);background:var(--accent);color:#FFF}
 .filters button.on-coral{border-color:var(--coral);background:var(--coral);color:#FFF}
+.filters button.on-orange{border-color:var(--orange);background:var(--orange);color:#FFF}
 .filters button .cnt{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,0,0,.1);border-radius:7px;min-width:16px;height:16px;font-size:9px;margin-left:3px;padding:0 3px}
-.filters button.on .cnt,.filters button.on-accent .cnt,.filters button.on-coral .cnt{background:rgba(255,255,255,.3)}
+.filters button.on .cnt,.filters button.on-accent .cnt,.filters button.on-coral .cnt,.filters button.on-orange .cnt{background:rgba(255,255,255,.3)}
 
 .task-card{background:var(--card);border-radius:var(--radius);padding:13px 15px;margin-bottom:9px;box-shadow:var(--shadow);border-left:5px solid var(--border);transition:all .2s}
 .task-card:active{transform:scale(.99)}
@@ -115,6 +118,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .t-actions .a-ongoing{border-color:var(--accent);color:var(--accent);background:#FFF}
 .t-actions .a-done{border-color:var(--success);color:var(--success);background:#FFF}
 .t-actions .a-attn{border-color:var(--coral);color:var(--coral);background:#FFF}
+.t-actions .a-comment{border-color:var(--orange);color:var(--orange);background:#FFF;position:relative}
+.t-actions .a-comment .c-badge{position:absolute;top:-6px;right:-6px;background:var(--coral);color:#FFF;font-size:8px;min-width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 2px;font-weight:800}
+
+/* COMMENT MODAL */
+.comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.comment-header h3{font-size:14px;font-weight:800;color:var(--primary-dark)}
+.comment-task-title{background:#F0FDF4;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:14px;border:1px solid var(--border)}
+.comments-list{max-height:45vh;overflow-y:auto;margin-bottom:12px;padding-right:4px}
+.comment-bubble{background:#F8FAFC;border-radius:12px;padding:10px 13px;margin-bottom:8px;border:1px solid #E2E8F0;position:relative}
+.comment-bubble.unread{background:#FFF7ED;border-color:#FDBA74;box-shadow:0 0 0 1px rgba(251,146,60,.15)}
+.comment-bubble.mine{background:#ECFDF5;border-color:var(--border)}
+.comment-bubble .cb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.comment-bubble .cb-author{font-weight:700;font-size:11px;color:var(--primary-dark)}
+.comment-bubble .cb-time{font-size:9px;color:var(--text-light)}
+.comment-bubble .cb-text{font-size:13px;line-height:1.5;color:var(--text)}
+.comment-bubble .cb-reply-ctx{font-size:10px;color:var(--accent);margin-bottom:4px;padding:4px 8px;background:rgba(124,58,237,.05);border-radius:6px;border-left:3px solid var(--accent)}
+.comment-bubble .reply-btn{background:none;border:none;color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;padding:2px 0;margin-top:4px;font-family:inherit}
+.comment-input-wrap{display:flex;gap:8px;align-items:flex-end}
+.comment-input-wrap textarea{flex:1;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;resize:none;min-height:42px;max-height:100px;background:#FAFFFE}
+.comment-input-wrap textarea:focus{outline:none;border-color:var(--primary);background:#FFF}
+.comment-input-wrap button{padding:10px 14px;border-radius:10px;background:var(--primary);color:#FFF;border:none;cursor:pointer;font-size:14px;font-weight:700;min-width:42px;height:42px;display:flex;align-items:center;justify-content:center}
+.reply-indicator{background:#EDE9FE;padding:6px 10px;border-radius:8px;font-size:11px;color:var(--accent);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.reply-indicator button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;padding:2px}
 
 /* MEETINGS LIST */
 .meet-list{padding:12px 14px 90px}
@@ -221,7 +247,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <h1><i class="fas fa-users"></i> Team Calendar</h1>
       <span class="user-pill" id="u-pill">User <span class="role-badge" id="u-role">member</span></span>
     </div>
-    <div class="sync-row"><span class="dot" id="dot"></span><span id="sync-txt">Synced</span></div>
+    <div class="sync-row"><span class="dot" id="dot"></span><span id="sync-txt">Synced</span><span style="margin-left:auto;opacity:.5;font-size:9px;cursor:pointer" onclick="forceUpdate()" title="Tap to check for updates">v7</span></div>
   </div>
   <!-- INSTALL BANNER -->
   <div id="install-banner" style="display:none;background:linear-gradient(135deg,#E31E24,#C41920);padding:10px 16px;display:none;align-items:center;justify-content:space-between;gap:10px">
@@ -286,8 +312,35 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div>
   <div class="fg"><label>Due Date <span style="color:var(--coral)">* Required</span></label><input type="date" id="mt-due" required></div>
   <div class="fg"><label>Status</label><select id="mt-status"><option value="pending">⏳ Pending</option><option value="ongoing">🔄 Ongoing</option><option value="attention">🚨 Need Attention</option><option value="complete">✅ Complete</option></select></div>
+  <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
+    <div style="font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--orange);margin-bottom:8px"><i class="fas fa-calendar-check"></i> Schedule on Calendar (optional)</div>
+    <div class="form-row">
+      <div class="fg"><label>Start Time</label><select id="mt-start"><option value="">— No schedule —</option></select></div>
+      <div class="fg"><label>End Time</label><select id="mt-end"><option value="">—</option></select></div>
+    </div>
+  </div>
   <div class="modal-btns"><button class="btn btn-outline" onclick="closeM('m-task')">Cancel</button><button class="btn btn-primary" onclick="saveTask()"><i class="fas fa-check"></i> Save</button></div>
   <div id="mt-del" style="display:none;margin-top:10px"><button class="btn btn-danger btn-sm" onclick="delTask()" style="width:100%;justify-content:center"><i class="fas fa-trash"></i> Delete</button></div>
+</div></div>
+
+<!-- COMMENT MODAL -->
+<div class="overlay" id="m-comment"><div class="modal">
+  <div class="comment-header">
+    <h3><i class="fas fa-comments" style="color:var(--orange)"></i> Comments</h3>
+    <button onclick="closeM('m-comment')" style="background:#F0FDF4;border:none;font-size:15px;cursor:pointer;color:var(--primary-dark);padding:5px 9px;border-radius:8px"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="comment-task-title" id="mc-task-title"></div>
+  <div class="comments-list" id="mc-list">
+    <div class="empty" style="padding:20px"><i class="fas fa-comment-dots" style="font-size:30px"></i><p>No comments yet. Be the first!</p></div>
+  </div>
+  <div id="mc-reply-bar" style="display:none" class="reply-indicator">
+    <span><i class="fas fa-reply"></i> Replying to <strong id="mc-reply-name"></strong></span>
+    <button onclick="cancelReply()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="comment-input-wrap">
+    <textarea id="mc-input" placeholder="Write a comment..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitComment()}"></textarea>
+    <button onclick="submitComment()"><i class="fas fa-paper-plane"></i></button>
+  </div>
 </div></div>
 
 <!-- RECURRING TASK MODAL -->
@@ -320,12 +373,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 let URL='',USER='',ROLE='',isDemo=false;
 let view='daily',curDate=new Date();
 let events={},tasks={},users=[],recurring=[];
-let editEvId=null,editTaskId=null,editUserName=null,editRecurId=null,taskFilter='all';
+let editEvId=null,editTaskId=null,editUserName=null,editRecurId=null,taskFilter='mine';
 let viewingMember=null,memberTab='tasks';
 let timer=null;
+// Comment state
+let commentTaskId=null,commentReplyTo='',commentReplyAuthor='';
+let commentReads=JSON.parse(localStorage.getItem('tc_comment_reads')||'{}');
 
 const SLOTS=[];
 for(let h=8;h<=18;h++)for(let m=0;m<60;m+=30){if(h===18&&m>0)break;SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);}
+// 5-min interval options for event/task time pickers (6 AM to 10 PM)
+const TIME_OPTS=[];
+for(let h=6;h<=22;h++)for(let m=0;m<60;m+=5){if(h===22&&m>0)break;TIME_OPTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);}
+// Track notified items to avoid repeat alerts
+let notifiedEvents={},notifiedAttnTasks={};
 
 // ═══ SETUP ═══
 function showSetup(){document.getElementById('m-setup').classList.add('on');const saved=localStorage.getItem('tc_url');if(saved)document.getElementById('setup-url').value=saved;}
@@ -373,7 +434,7 @@ function startApp(){
 })();
 
 // ═══ API ═══
-async function apiGet(action){const r=await fetch(`${URL}?action=${action}&user=${encodeURIComponent(USER)}`);return r.json();}
+async function apiGet(action,extra){const q=extra||'';const r=await fetch(`${URL}?action=${action}&user=${encodeURIComponent(USER)}${q}`);return r.json();}
 async function apiPost(data){data.user=USER;const r=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});return r.json();}
 async function fetchAll(){
   try{
@@ -396,12 +457,12 @@ function loadDemo(){
     const td=fmtD(new Date()),yd=fmtD(new Date(Date.now()-86400000));
     users=[{username:'Jitendra',role:'owner'},{username:'EA',role:'ea'},{username:'Rahul',role:'member'},{username:'Priya',role:'member'},{username:'Amit',role:'member'}];
     events={e1:{id:'e1',title:'Board Meeting',person:'Board',date:td,start:'09:00',end:'10:00',type:'online',createdBy:'Jitendra'},e2:{id:'e2',title:'Client Call',person:'Vendor',date:td,start:'11:00',end:'11:30',type:'call',createdBy:'Jitendra'},e3:{id:'e3',title:'Team Sync',person:'Team',date:td,start:'14:00',end:'14:30',type:'offline',createdBy:'Rahul'}};
-    tasks={t1:{id:'t1',title:'Prepare investor deck',description:'Q2 numbers',assignedTo:'Priya',assignedBy:'Jitendra',status:'ongoing',priority:'high',dueDate:td,createdBy:'Jitendra',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
-    t2:{id:'t2',title:'Review vendor contract',description:'',assignedTo:'Jitendra',assignedBy:'EA',status:'attention',priority:'high',dueDate:td,createdBy:'EA',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
-    t3:{id:'t3',title:'Update CRM data',description:'',assignedTo:'Amit',assignedBy:'Jitendra',status:'pending',priority:'medium',dueDate:td,createdBy:'Jitendra',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
-    t4:{id:'t4',title:'Book travel tickets',description:'',assignedTo:'EA',assignedBy:'Jitendra',status:'complete',priority:'low',dueDate:yd,createdBy:'Jitendra',createdAt:new Date(Date.now()-172800000).toISOString(),updatedAt:new Date(Date.now()-50000000).toISOString()},
-    t5:{id:'t5',title:'Send follow-up emails',description:'',assignedTo:'Rahul',assignedBy:'Jitendra',status:'complete',priority:'medium',dueDate:yd,createdBy:'Jitendra',createdAt:new Date(Date.now()-259200000).toISOString(),updatedAt:new Date(Date.now()-172800000).toISOString()},
-    t6:{id:'t6',title:'Prepare MOM',description:'',assignedTo:'Priya',assignedBy:'Jitendra',status:'complete',priority:'low',dueDate:fmtD(new Date(Date.now()+86400000)),createdBy:'Jitendra',createdAt:new Date(Date.now()-86400000).toISOString(),updatedAt:new Date().toISOString()}};
+    tasks={t1:{id:'t1',title:'Prepare investor deck',description:'Q2 numbers',assignedTo:'Priya',assignedBy:'Jitendra',status:'ongoing',priority:'high',dueDate:td,start:'10:00',end:'11:00',createdBy:'Jitendra',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),commentCount:2,lastCommentAt:new Date(Date.now()-3600000).toISOString(),lastCommentBy:'Priya'},
+    t2:{id:'t2',title:'Review vendor contract',description:'',assignedTo:'Jitendra',assignedBy:'EA',status:'attention',priority:'high',dueDate:td,start:'',end:'',createdBy:'EA',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
+    t3:{id:'t3',title:'Update CRM data',description:'',assignedTo:'Amit',assignedBy:'Jitendra',status:'pending',priority:'medium',dueDate:td,start:'15:00',end:'16:00',createdBy:'Jitendra',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
+    t4:{id:'t4',title:'Book travel tickets',description:'',assignedTo:'EA',assignedBy:'Jitendra',status:'complete',priority:'low',dueDate:yd,start:'',end:'',createdBy:'Jitendra',createdAt:new Date(Date.now()-172800000).toISOString(),updatedAt:new Date(Date.now()-50000000).toISOString()},
+    t5:{id:'t5',title:'Send follow-up emails',description:'',assignedTo:'Rahul',assignedBy:'Jitendra',status:'complete',priority:'medium',dueDate:yd,start:'',end:'',createdBy:'Jitendra',createdAt:new Date(Date.now()-259200000).toISOString(),updatedAt:new Date(Date.now()-172800000).toISOString()},
+    t6:{id:'t6',title:'Prepare MOM',description:'',assignedTo:'Priya',assignedBy:'Jitendra',status:'complete',priority:'low',dueDate:fmtD(new Date(Date.now()+86400000)),start:'',end:'',createdBy:'Jitendra',createdAt:new Date(Date.now()-86400000).toISOString(),updatedAt:new Date().toISOString()}};
     recurring=[{id:'rc1',title:'Weekly Team Standup Report',description:'Submit weekly progress',assignedTo:'Rahul',frequency:'weekly',day:'Friday',priority:'medium',createdBy:'Jitendra'},{id:'rc2',title:'Monthly Invoice Review',description:'Check all vendor invoices',assignedTo:'EA',frequency:'monthly',day:'25',priority:'high',createdBy:'Jitendra'}];
     saveLocal();
   }
@@ -427,7 +488,6 @@ function calcPerformance(){
 function renderPerfBar(){
   const perf=calcPerformance();
   const bar=document.getElementById('perf-bar');
-  // Everyone sees only their own % on main screen
   const p=perf[USER]||{total:0,onTime:0};
   const pct=p.total>0?Math.round((p.onTime/p.total)*100):0;
   const cls=pct>=80?'high':pct>=50?'mid':'low';
@@ -457,31 +517,24 @@ function render(){updateDate();updateBadge();renderPerfBar();
   else if(view==='meetings')renderMeetings();else if(view==='team')renderTeam();}
 
 // ═══ HELPERS ═══
-// Fix dates from Google Sheets (they come as "Sat May 17 2026..." or Date objects instead of "2026-05-17")
 function fixDate(val){
   if(!val)return'';
   const s=String(val).trim();
-  // Already in YYYY-MM-DD format
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  // Try parsing as date
   const d=new Date(s);
   if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   return s;
 }
-// Fix time values from Sheets (might come as "1899-12-30T09:00:00.000Z" or Date object)
 function fixTime(val){
   if(!val)return'';
   const s=String(val).trim();
-  // Already HH:MM
   if(/^\d{2}:\d{2}$/.test(s))return s;
-  // If it has T and looks like datetime, extract time
-  if(s.includes('T')){const m=s.match(/T(\d{2}:\d{2})/);if(m)return m[1];}
-  // Try as date object
   const d=new Date(s);
   if(!isNaN(d.getTime()))return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const m=s.match(/(\d{2}):(\d{2})/);
+  if(m)return m[1]+':'+m[2];
   return s;
 }
-// Normalize all events and tasks after fetching
 function normalizeData(){
   Object.values(events).forEach(ev=>{
     ev.date=fixDate(ev.date);
@@ -490,6 +543,8 @@ function normalizeData(){
   });
   Object.values(tasks).forEach(t=>{
     t.dueDate=fixDate(t.dueDate);
+    t.start=fixTime(t.start);
+    t.end=fixTime(t.end);
   });
 }
 function fmtD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -499,22 +554,86 @@ function goToday(){curDate=new Date();render();}
 function updateDate(){const o=view==='weekly'?{month:'long',year:'numeric'}:{weekday:'short',month:'long',day:'numeric'};document.getElementById('date-lbl').textContent=curDate.toLocaleDateString('en-US',o);}
 function fmtT(t){if(!t)return'';const[h,m]=t.split(':');const hr=+h;return `${hr===0?12:hr>12?hr-12:hr}:${m}${hr>=12?'pm':'am'}`;}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function updateBadge(){const n=Object.values(tasks).filter(t=>t.status==='attention').length;const b=document.getElementById('t-badge');if(n>0){b.textContent=n;b.style.display='';}else b.style.display='none';}
+function updateBadge(){
+  const attn=Object.values(tasks).filter(t=>t.status==='attention').length;
+  const unread=countTotalUnread();
+  const total=attn+unread;
+  const b=document.getElementById('t-badge');
+  if(total>0){b.textContent=total;b.style.display='';}else b.style.display='none';
+}
 function getWeek(){const d=new Date(curDate);const day=d.getDay();d.setDate(d.getDate()-day+(day===0?-6:1));const ds=[];for(let i=0;i<7;i++){ds.push(new Date(d));d.setDate(d.getDate()+1);}return ds;}
-function slotsFor(ds,t){return Object.entries(events).filter(([id,ev])=>ev.date===ds&&ev.start===t);}
-function populateSelects(){['me-start','me-end'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='';SLOTS.forEach(t=>s.innerHTML+=`<option value="${t}">${fmtT(t)}</option>`);});}
-function populateAssign(){const ids=['mt-assign','mr-assign'];ids.forEach(id=>{const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">Unassigned</option>';users.forEach(u=>s.innerHTML+=`<option value="${esc(u.username)}">${esc(u.username)} (${u.role})</option>`);});}
-function autoEnd(){const v=document.getElementById('me-start').value;const i=SLOTS.indexOf(v);if(i>=0&&i<SLOTS.length-1)document.getElementById('me-end').value=SLOTS[i+1];}
+function slotsFor(ds,t){return Object.entries(events).filter(([id,ev])=>{if(ev.date!==ds)return false;return ev.start<=t&&t<ev.end;});}
+// Scheduled tasks that appear in calendar
+function taskSlotsFor(ds,t){return Object.entries(tasks).filter(([id,tk])=>{if(!tk.start||!tk.end||tk.dueDate!==ds)return false;return tk.start<=t&&t<tk.end;});}
+function populateSelects(){
+  // Use 5-min intervals for all time pickers
+  ['me-start','me-end'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='';TIME_OPTS.forEach(t=>s.innerHTML+=`<option value="${t}">${fmtT(t)}</option>`);});
+  const tStart=document.getElementById('mt-start');
+  const tEnd=document.getElementById('mt-end');
+  tStart.innerHTML='<option value="">— No schedule —</option>';
+  tEnd.innerHTML='<option value="">—</option>';
+  TIME_OPTS.forEach(t=>{tStart.innerHTML+=`<option value="${t}">${fmtT(t)}</option>`;tEnd.innerHTML+=`<option value="${t}">${fmtT(t)}</option>`;});
+}
+function populateAssign(){
+  const ids=['mt-assign','mr-assign'];
+  ids.forEach(id=>{
+    const s=document.getElementById(id);
+    if(!s)return;
+    // BUG FIX: Save current value before rebuilding options
+    const curVal=s.value;
+    s.innerHTML='<option value="">Unassigned</option>';
+    users.forEach(u=>s.innerHTML+=`<option value="${esc(u.username)}">${esc(u.username)} (${u.role})</option>`);
+    // Restore previously selected value
+    if(curVal){s.value=curVal;}
+  });
+}
+function autoEnd(){const v=document.getElementById('me-start').value;const i=TIME_OPTS.indexOf(v);if(i>=0&&i+6<TIME_OPTS.length)document.getElementById('me-end').value=TIME_OPTS[i+6];else if(i>=0)document.getElementById('me-end').value=TIME_OPTS[TIME_OPTS.length-1];}
+function autoTaskEnd(){const v=document.getElementById('mt-start').value;if(!v){document.getElementById('mt-end').value='';return;}const i=TIME_OPTS.indexOf(v);if(i>=0&&i+6<TIME_OPTS.length)document.getElementById('mt-end').value=TIME_OPTS[i+6];else if(i>=0)document.getElementById('mt-end').value=TIME_OPTS[TIME_OPTS.length-1];}
+document.getElementById('mt-start').addEventListener('change',autoTaskEnd);
 function fabAction(){if(view==='tasks')openTaskM();else if(view==='recurring')openRecurM();else if(view==='team')openUserM();else openEvM();}
 function closeM(id){document.getElementById(id).classList.remove('on');}
+
+// ═══ COMMENT READ TRACKING ═══
+function getUnreadCount(taskId){
+  const t=tasks[taskId];
+  if(!t||!t.commentCount)return 0;
+  const lastRead=commentReads[taskId]||'';
+  const lastComment=t.lastCommentAt||'';
+  if(!lastComment)return 0;
+  if(!lastRead)return t.commentCount;
+  // Compare timestamps
+  if(lastComment>lastRead)return t.commentCount; // Simplified: show full count if any new
+  return 0;
+}
+function countTotalUnread(){
+  let total=0;
+  Object.keys(tasks).forEach(id=>{total+=getUnreadCount(id);});
+  return total;
+}
+function markTaskCommentsRead(taskId){
+  commentReads[taskId]=new Date().toISOString();
+  localStorage.setItem('tc_comment_reads',JSON.stringify(commentReads));
+}
+function countTasksWithUnread(){
+  let c=0;
+  Object.keys(tasks).forEach(id=>{if(getUnreadCount(id)>0)c++;});
+  return c;
+}
 
 // ═══ DAILY ═══
 function renderDaily(){
   const c=document.getElementById('v-daily'),ds=fmtD(curDate);let h='';
   SLOTS.forEach(t=>{
-    const se=slotsFor(ds,t);let chips='';
+    const se=slotsFor(ds,t);
+    const ste=taskSlotsFor(ds,t);
+    let chips='';
     se.forEach(([id,ev])=>{const ic={online:'fa-video',offline:'fa-building',call:'fa-phone'};
-      chips+=`<span class="chip ${ev.type||'online'}" onclick="event.stopPropagation();editEv('${id}')"><i class="fas ${ic[ev.type]||'fa-calendar'}"></i> ${esc(ev.title)}${ev.person?' — '+esc(ev.person):''}</span>`;});
+      const si=SLOTS.indexOf(t);const prevSlot=si>0?SLOTS[si-1]:null;const isFirst=!prevSlot||!(ev.start<=prevSlot&&prevSlot<ev.end);
+      chips+=`<div class="chip ${ev.type||'online'}" onclick="event.stopPropagation();editEv('${id}')">${isFirst?`<i class="fas ${ic[ev.type]||'fa-calendar'}"></i> ${esc(ev.title)}${ev.person?' — '+esc(ev.person):''}`:''}</div>`;});
+    // Scheduled tasks
+    ste.forEach(([id,tk])=>{
+      const si=SLOTS.indexOf(t);const prevSlot=si>0?SLOTS[si-1]:null;const isFirst=!prevSlot||!(tk.start<=prevSlot&&prevSlot<tk.end);
+      chips+=`<div class="chip task-chip" onclick="event.stopPropagation();editTask('${id}')">${isFirst?`<i class="fas fa-clipboard-check"></i> ${esc(tk.title)}${tk.assignedTo?' — '+esc(tk.assignedTo):''}`:''}</div>`;});
     h+=`<div class="slot"><div class="time">${fmtT(t)}</div><div class="content" onclick="openEvSlot('${ds}','${t}')">${chips}${!chips?'<button class="add-btn"><i class="fas fa-plus"></i></button>':''}</div></div>`;
   });
   c.innerHTML=h;
@@ -529,10 +648,15 @@ function renderWeekly(){
     h+=`<div style="${tc}padding:6px 3px;text-align:center;border-bottom:2px solid var(--border);border-right:1px solid var(--border);font-size:10px;font-weight:700"><div style="font-size:9px;opacity:.7">${dn[i]}</div>${d.getDate()}</div>`;});
   SLOTS.forEach(t=>{
     h+=`<div style="padding:2px 3px;font-size:8px;font-weight:700;color:var(--primary-dark);text-align:right;border-right:2px solid var(--border);border-bottom:1px solid rgba(209,250,229,.5);background:rgba(209,250,229,.15);min-height:34px;display:flex;align-items:center;justify-content:flex-end">${fmtT(t)}</div>`;
-    dates.forEach(d=>{const ds=fmtD(d),tc=isToday(d)?'background:rgba(52,211,153,.06);':'background:rgba(240,253,244,.4);';const se=slotsFor(ds,t);let ce='';
-      se.forEach(([id,ev])=>{const bg=ev.type==='call'?'rgba(14,165,233,.15)':ev.type==='offline'?'rgba(244,63,94,.12)':'rgba(124,58,237,.12)';const clr=ev.type==='call'?'#0284C7':ev.type==='offline'?'#E11D48':'#6D28D9';
-        ce+=`<div onclick="event.stopPropagation();editEv('${id}')" style="background:${bg};color:${clr};padding:2px 4px;border-radius:4px;font-size:8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:1px;cursor:pointer;border-left:2px solid ${clr}">${esc(ev.title)}</div>`;});
-      h+=`<div style="${tc}border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.3);padding:1px;min-height:34px;cursor:pointer" onclick="openEvSlot('${ds}','${t}')">${ce}</div>`;});
+    dates.forEach(d=>{const ds=fmtD(d);const se=slotsFor(ds,t);const ste=taskSlotsFor(ds,t);
+      if(se.length>0){const ev=se[0][1];const id=se[0][0];const bg=ev.type==='call'?'#E0F2FE':ev.type==='offline'?'#FFE4E6':'#EDE9FE';const clr=ev.type==='call'?'#0369A1':ev.type==='offline'?'#BE123C':'#6D28D9';const brd=ev.type==='call'?'#0EA5E9':ev.type==='offline'?'#F43F5E':'#8B5CF6';
+        const si=SLOTS.indexOf(t);const prevSlot=si>0?SLOTS[si-1]:null;const isFirst=!prevSlot||!(ev.start<=prevSlot&&prevSlot<ev.end);
+        h+=`<div onclick="event.stopPropagation();editEv('${id}')" style="background:${bg};border-right:1px solid rgba(209,250,229,.5);border-bottom:${isFirst?'none':'1px solid rgba(209,250,229,.2)'};border-left:3px solid ${brd};padding:3px 4px;min-height:34px;cursor:pointer;display:flex;align-items:center">${isFirst?`<div style="color:${clr};font-size:8px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ev.title)}</div>`:''}</div>`;
+      }else if(ste.length>0){const tk=ste[0][1];const id=ste[0][0];
+        const si=SLOTS.indexOf(t);const prevSlot=si>0?SLOTS[si-1]:null;const isFirst=!prevSlot||!(tk.start<=prevSlot&&prevSlot<tk.end);
+        h+=`<div onclick="event.stopPropagation();editTask('${id}')" style="background:#FEF3C7;border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.2);border-left:3px solid #F59E0B;padding:3px 4px;min-height:34px;cursor:pointer;display:flex;align-items:center">${isFirst?`<div style="color:#92400E;font-size:8px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tk.title)}</div>`:''}</div>`;
+      }else{const tc=isToday(d)?'background:rgba(52,211,153,.06);':'background:rgba(240,253,244,.4);';
+        h+=`<div style="${tc}border-right:1px solid rgba(209,250,229,.5);border-bottom:1px solid rgba(209,250,229,.3);padding:1px;min-height:34px;cursor:pointer" onclick="openEvSlot('${ds}','${t}')"></div>`;}});
   });
   h+='</div>';c.innerHTML=h;
 }
@@ -541,18 +665,19 @@ function renderWeekly(){
 function renderTasks(){
   const c=document.getElementById('v-tasks');
   const all=Object.entries(tasks);
-  const counts={all:all.length,mine:0,attention:0,ongoing:0,pending:0,complete:0};
-  all.forEach(([,t])=>{if(counts[t.status]!==undefined)counts[t.status]++;if(t.assignedTo&&t.assignedTo.toLowerCase()===USER.toLowerCase())counts.mine++;});
+  const counts={all:all.length,mine:0,attention:0,ongoing:0,pending:0,complete:0,comments:0};
+  all.forEach(([id,t])=>{if(counts[t.status]!==undefined)counts[t.status]++;if(t.assignedTo&&t.assignedTo.toLowerCase()===USER.toLowerCase())counts.mine++;if(getUnreadCount(id)>0)counts.comments++;});
 
   let fil=all;
   if(taskFilter==='mine')fil=all.filter(([,t])=>t.assignedTo&&t.assignedTo.toLowerCase()===USER.toLowerCase());
+  else if(taskFilter==='comments')fil=all.filter(([id])=>getUnreadCount(id)>0);
   else if(taskFilter!=='all')fil=all.filter(([,t])=>t.status===taskFilter);
   fil.sort((a,b)=>{const so={attention:0,ongoing:1,pending:2,complete:3},po={high:0,medium:1,low:2};
     if(so[a[1].status]!==so[b[1].status])return(so[a[1].status]??2)-(so[b[1].status]??2);return(po[a[1].priority]||1)-(po[b[1].priority]||1);});
 
   let h=`<div class="section-head"><h2><i class="fas fa-tasks"></i> Tasks</h2><button class="btn btn-primary btn-sm" onclick="openTaskM()"><i class="fas fa-plus"></i> Add</button></div>`;
   h+='<div class="filters">';
-  [['all','All','on'],['mine','My Tasks','on-accent'],['attention','Attention','on-coral'],['ongoing','Ongoing','on'],['pending','Pending','on'],['complete','Done','on']].forEach(([k,l,cls])=>{
+  [['mine','My Tasks','on-accent'],['comments','Comments','on-orange'],['all','All','on'],['attention','Attention','on-coral'],['ongoing','Ongoing','on'],['pending','Pending','on'],['complete','Done','on']].forEach(([k,l,cls])=>{
     const act=taskFilter===k;h+=`<button class="${act?cls:''}" onclick="taskFilter='${k}';renderTasks()">${l}<span class="cnt">${counts[k]||0}</span></button>`;});
   h+='</div>';
   if(!fil.length)h+='<div class="empty"><i class="fas fa-clipboard-check"></i><p>No tasks here</p></div>';
@@ -563,24 +688,152 @@ function renderTaskCard(id,t){
   const sc='s-'+(t.status||'pending');const labels={ongoing:'Ongoing',complete:'Complete',attention:'Attention',pending:'Pending'};
   const prio=t.priority==='high'?'<i class="fas fa-arrow-up" style="color:var(--coral);font-size:10px"></i> ':t.priority==='low'?'<i class="fas fa-arrow-down" style="color:var(--success);font-size:10px"></i> ':'';
   const isOverdue=t.status!=='complete'&&t.dueDate&&new Date(t.dueDate+'T23:59:59')<new Date();
+  const unread=getUnreadCount(id);
+  const cmtCount=t.commentCount||0;
+  const hasSchedule=t.start&&t.end;
   return `<div class="task-card ${sc}" onclick="editTask('${id}')">
     <div class="t-top"><div class="t-title">${prio}${esc(t.title)}</div><span class="s-badge ${t.status||'pending'}">${labels[t.status]||'Pending'}</span></div>
     ${t.description?`<div style="font-size:11px;color:var(--text-light);margin-top:3px">${esc(t.description)}</div>`:''}
     <div class="t-meta">
       ${t.assignedTo?`<span><i class="fas fa-user" style="color:var(--accent)"></i> ${esc(t.assignedTo)}</span>`:''}
       ${t.dueDate?`<span style="${isOverdue?'color:var(--coral);font-weight:700':''}"><i class="fas fa-clock" style="color:${isOverdue?'var(--coral)':'var(--primary)'}"></i> ${new Date(t.dueDate+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}${isOverdue?' (Overdue)':''}</span>`:''}
+      ${hasSchedule?`<span><i class="fas fa-calendar-check" style="color:var(--orange)"></i> ${fmtT(t.start)}-${fmtT(t.end)}</span>`:''}
       ${t.assignedBy?`<span><i class="fas fa-paper-plane" style="color:var(--primary)"></i> by ${esc(t.assignedBy)}</span>`:''}
     </div>
     <div class="t-actions" onclick="event.stopPropagation()">
       ${t.status!=='ongoing'?`<button class="a-ongoing" onclick="qStatus('${id}','ongoing')"><i class="fas fa-spinner"></i> Ongoing</button>`:''}
       ${t.status!=='complete'?`<button class="a-done" onclick="qStatus('${id}','complete')"><i class="fas fa-check"></i> Done</button>`:''}
       ${t.status!=='attention'?`<button class="a-attn" onclick="qStatus('${id}','attention')"><i class="fas fa-exclamation"></i> Attention</button>`:''}
+      <button class="a-comment" onclick="openComments('${id}')"><i class="fas fa-comment"></i> ${cmtCount||''}${unread>0?`<span class="c-badge">${unread}</span>`:''}</button>
     </div></div>`;
 }
 async function qStatus(id,s){
   tasks[id].status=s;tasks[id].updatedAt=new Date().toISOString();
   if(isDemo)saveLocal();else{try{await apiPost({action:'updateTaskStatus',id,status:s});}catch(e){}}
+  // Notify when task marked as Attention
+  if(s==='attention'){
+    showNotification('🚨 Task Needs Attention',`"${tasks[id].title}" has been flagged as needing attention.`);
+  }
   render();
+}
+
+// ═══ COMMENTS ═══
+async function openComments(taskId){
+  commentTaskId=taskId;
+  commentReplyTo='';commentReplyAuthor='';
+  document.getElementById('mc-reply-bar').style.display='none';
+  document.getElementById('mc-input').value='';
+  const t=tasks[taskId];
+  document.getElementById('mc-task-title').innerHTML=`<i class="fas fa-clipboard"></i> ${esc(t?t.title:'Task')}`;
+
+  // Mark as read
+  markTaskCommentsRead(taskId);
+  updateBadge();
+  if(view==='tasks')renderTasks();
+
+  // Load comments
+  document.getElementById('mc-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--text-light)"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+  document.getElementById('m-comment').classList.add('on');
+
+  if(isDemo){
+    // Demo comments
+    const demoComments=getDemoComments(taskId);
+    renderCommentsUI(demoComments);
+    return;
+  }
+  try{
+    const r=await apiGet('getComments',`&taskId=${encodeURIComponent(taskId)}`);
+    renderCommentsUI(r.comments||[]);
+  }catch(e){
+    document.getElementById('mc-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--coral)"><i class="fas fa-exclamation-triangle"></i> Could not load comments</div>';
+  }
+}
+function getDemoComments(taskId){
+  let stored=JSON.parse(localStorage.getItem('tc_demo_comments')||'{}');
+  if(!stored[taskId]&&taskId==='t1'){
+    stored[taskId]=[
+      {id:'dc1',taskId:'t1',text:'I have started working on Q2 slides. Will share draft by evening.',author:'Priya',replyTo:'',replyAuthor:'',createdAt:new Date(Date.now()-7200000).toISOString()},
+      {id:'dc2',taskId:'t1',text:'Great! Make sure to include the new client numbers.',author:'Jitendra',replyTo:'dc1',replyAuthor:'Priya',createdAt:new Date(Date.now()-3600000).toISOString()}
+    ];
+    localStorage.setItem('tc_demo_comments',JSON.stringify(stored));
+  }
+  return stored[taskId]||[];
+}
+function renderCommentsUI(comments){
+  const list=document.getElementById('mc-list');
+  if(!comments.length){
+    list.innerHTML='<div class="empty" style="padding:20px"><i class="fas fa-comment-dots" style="font-size:30px"></i><p>No comments yet. Be the first!</p></div>';
+    return;
+  }
+  const lastRead=commentReads[commentTaskId]||'';
+  let h='';
+  comments.forEach(c=>{
+    const isMine=c.author&&c.author.toLowerCase()===USER.toLowerCase();
+    const isUnread=!isMine&&lastRead&&c.createdAt>lastRead;
+    const timeStr=c.createdAt?new Date(c.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+    h+=`<div class="comment-bubble${isMine?' mine':''}${isUnread?' unread':''}">`;
+    if(c.replyTo&&c.replyAuthor){
+      h+=`<div class="cb-reply-ctx"><i class="fas fa-reply" style="font-size:8px"></i> Replying to ${esc(c.replyAuthor)}</div>`;
+    }
+    h+=`<div class="cb-head"><span class="cb-author">${esc(c.author)}${isMine?' (You)':''}</span><span class="cb-time">${timeStr}</span></div>`;
+    h+=`<div class="cb-text">${esc(c.text)}</div>`;
+    h+=`<button class="reply-btn" onclick="setReply('${c.id}','${esc(c.author)}')"><i class="fas fa-reply"></i> Reply</button>`;
+    h+=`</div>`;
+  });
+  list.innerHTML=h;
+  // Scroll to bottom
+  list.scrollTop=list.scrollHeight;
+}
+function setReply(commentId,author){
+  commentReplyTo=commentId;
+  commentReplyAuthor=author;
+  document.getElementById('mc-reply-name').textContent=author;
+  document.getElementById('mc-reply-bar').style.display='flex';
+  document.getElementById('mc-input').focus();
+}
+function cancelReply(){
+  commentReplyTo='';commentReplyAuthor='';
+  document.getElementById('mc-reply-bar').style.display='none';
+}
+async function submitComment(){
+  const text=document.getElementById('mc-input').value.trim();
+  if(!text||!commentTaskId)return;
+  document.getElementById('mc-input').value='';
+
+  const data={taskId:commentTaskId,text,replyTo:commentReplyTo,replyAuthor:commentReplyAuthor};
+  cancelReply();
+
+  if(isDemo){
+    let stored=JSON.parse(localStorage.getItem('tc_demo_comments')||'{}');
+    if(!stored[commentTaskId])stored[commentTaskId]=[];
+    const cmt={id:'cmt_'+Date.now(),taskId:commentTaskId,text:data.text,author:USER,replyTo:data.replyTo,replyAuthor:data.replyAuthor,createdAt:new Date().toISOString()};
+    stored[commentTaskId].push(cmt);
+    localStorage.setItem('tc_demo_comments',JSON.stringify(stored));
+    // Update task comment count
+    tasks[commentTaskId].commentCount=(tasks[commentTaskId].commentCount||0)+1;
+    tasks[commentTaskId].lastCommentAt=cmt.createdAt;
+    tasks[commentTaskId].lastCommentBy=USER;
+    saveLocal();
+    markTaskCommentsRead(commentTaskId);
+    renderCommentsUI(stored[commentTaskId]);
+    render();
+    return;
+  }
+
+  try{
+    const r=await apiPost({action:'addComment',...data});
+    if(r.success){
+      // Update local count
+      tasks[commentTaskId].commentCount=(tasks[commentTaskId].commentCount||0)+1;
+      tasks[commentTaskId].lastCommentAt=r.createdAt||new Date().toISOString();
+      tasks[commentTaskId].lastCommentBy=USER;
+      markTaskCommentsRead(commentTaskId);
+      // Refresh comments
+      const cr=await apiGet('getComments',`&taskId=${encodeURIComponent(commentTaskId)}`);
+      renderCommentsUI(cr.comments||[]);
+      render();
+    }
+  }catch(e){alert('Failed to post comment');}
 }
 
 // ═══ RECURRING TASKS ═══
@@ -665,7 +918,6 @@ function renderMeetings(){
 // ═══ TEAM ═══
 function renderTeam(){
   const c=document.getElementById('v-team');
-  // If viewing a specific member
   if(viewingMember){renderMemberDetail(c);return;}
   const perf=calcPerformance();
   let h=`<div class="section-head"><h2><i class="fas fa-user-group"></i> Team (${users.length})</h2>`;
@@ -714,7 +966,6 @@ function renderMemberDetail(c){
     memberTasks.sort((a,b)=>{const so={attention:0,ongoing:1,pending:2,complete:3};return(so[a[1].status]??2)-(so[b[1].status]??2);});
     memberTasks.forEach(([id,t])=>{h+=renderTaskCard(id,t);});
   }else{
-    // Show member's calendar for today
     const ds=fmtD(curDate);
     const memberEvents=Object.entries(events).filter(([,ev])=>ev.createdBy&&ev.createdBy.toLowerCase()===viewingMember.toLowerCase());
     h+=`<div style="font-weight:700;font-size:13px;color:var(--primary-dark);margin-bottom:10px">${curDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>`;
@@ -777,7 +1028,7 @@ async function delUser(){
 }
 
 // ═══ EVENT MODAL ═══
-function openEvM(){editEvId=null;document.getElementById('me-title').textContent='Schedule Meeting';document.getElementById('me-name').value='';document.getElementById('me-person').value='';document.getElementById('me-date').value=fmtD(curDate);document.getElementById('me-start').value='09:00';document.getElementById('me-end').value='09:30';document.getElementById('me-type').value='online';document.getElementById('me-del').style.display='none';document.getElementById('m-event').classList.add('on');}
+function openEvM(){editEvId=null;document.getElementById('me-title').textContent='Schedule Meeting';document.getElementById('me-name').value='';document.getElementById('me-person').value='';document.getElementById('me-date').value=fmtD(curDate);document.getElementById('me-start').value='09:00';autoEnd();document.getElementById('me-type').value='online';document.getElementById('me-del').style.display='none';document.getElementById('m-event').classList.add('on');}
 function openEvSlot(d,t){openEvM();document.getElementById('me-date').value=d;document.getElementById('me-start').value=t;autoEnd();}
 function editEv(id){editEvId=id;const ev=events[id];if(!ev)return;document.getElementById('me-title').textContent='Edit Meeting';document.getElementById('me-name').value=ev.title;document.getElementById('me-person').value=ev.person||'';document.getElementById('me-date').value=ev.date;document.getElementById('me-start').value=ev.start;document.getElementById('me-end').value=ev.end;document.getElementById('me-type').value=ev.type||'online';document.getElementById('me-del').style.display='';document.getElementById('m-event').classList.add('on');}
 async function saveEv(){
@@ -795,13 +1046,17 @@ async function delEv(){
 }
 
 // ═══ TASK MODAL ═══
-function openTaskM(){editTaskId=null;document.getElementById('mt-title').textContent='Add Task';document.getElementById('mt-name').value='';document.getElementById('mt-desc').value='';document.getElementById('mt-assign').value='';document.getElementById('mt-prio').value='medium';document.getElementById('mt-due').value='';document.getElementById('mt-status').value='pending';document.getElementById('mt-del').style.display='none';document.getElementById('m-task').classList.add('on');}
-function editTask(id){editTaskId=id;const t=tasks[id];if(!t)return;document.getElementById('mt-title').textContent='Edit Task';document.getElementById('mt-name').value=t.title;document.getElementById('mt-desc').value=t.description||'';document.getElementById('mt-assign').value=t.assignedTo||'';document.getElementById('mt-prio').value=t.priority||'medium';document.getElementById('mt-due').value=t.dueDate||'';document.getElementById('mt-status').value=t.status||'pending';document.getElementById('mt-del').style.display='';document.getElementById('m-task').classList.add('on');}
+function openTaskM(){editTaskId=null;document.getElementById('mt-title').textContent='Add Task';document.getElementById('mt-name').value='';document.getElementById('mt-desc').value='';document.getElementById('mt-assign').value='';document.getElementById('mt-prio').value='medium';document.getElementById('mt-due').value='';document.getElementById('mt-status').value='pending';document.getElementById('mt-start').value='';document.getElementById('mt-end').value='';document.getElementById('mt-del').style.display='none';document.getElementById('m-task').classList.add('on');}
+function editTask(id){editTaskId=id;const t=tasks[id];if(!t)return;document.getElementById('mt-title').textContent='Edit Task';document.getElementById('mt-name').value=t.title;document.getElementById('mt-desc').value=t.description||'';document.getElementById('mt-assign').value=t.assignedTo||'';document.getElementById('mt-prio').value=t.priority||'medium';document.getElementById('mt-due').value=t.dueDate||'';document.getElementById('mt-status').value=t.status||'pending';document.getElementById('mt-start').value=t.start||'';document.getElementById('mt-end').value=t.end||'';document.getElementById('mt-del').style.display='';document.getElementById('m-task').classList.add('on');}
 async function saveTask(){
   const title=document.getElementById('mt-name').value.trim();if(!title){alert('Enter a title');return;}
   const dueDate=document.getElementById('mt-due').value;
   if(!dueDate){alert('Due date is mandatory!');return;}
-  const data={id:editTaskId||'',title,description:document.getElementById('mt-desc').value.trim(),assignedTo:document.getElementById('mt-assign').value,assignedBy:USER,status:document.getElementById('mt-status').value,priority:document.getElementById('mt-prio').value,dueDate,createdBy:USER,updatedAt:new Date().toISOString()};
+  const taskStart=document.getElementById('mt-start').value;
+  const taskEnd=document.getElementById('mt-end').value;
+  // Validate: if start is set, end must also be set
+  if(taskStart&&!taskEnd){alert('Please select an end time for the schedule');return;}
+  const data={id:editTaskId||'',title,description:document.getElementById('mt-desc').value.trim(),assignedTo:document.getElementById('mt-assign').value,assignedBy:USER,status:document.getElementById('mt-status').value,priority:document.getElementById('mt-prio').value,dueDate,start:taskStart,end:taskEnd,createdBy:USER,updatedAt:new Date().toISOString()};
   if(!editTaskId)data.createdAt=new Date().toISOString();
   if(editTaskId&&tasks[editTaskId]){data.createdAt=tasks[editTaskId].createdAt;data.createdBy=tasks[editTaskId].createdBy;}
   if(isDemo){const id=editTaskId||'task_'+Date.now();data.id=id;tasks[id]=data;saveLocal();}
@@ -815,29 +1070,51 @@ async function delTask(){
   closeM('m-task');render();
 }
 
+function forceUpdate(){
+  if(!confirm('Check for app update? App will reload.'))return;
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+      regs.forEach(r=>r.unregister());
+    }).then(()=>caches.keys()).then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>{
+      alert('Cache cleared! App will reload now.');
+      window.location.reload(true);
+    });
+  }else{window.location.reload(true);}
+}
 function logout(){if(!confirm('Logout?'))return;['tc_user','tc_pass','tc_demo','tc_ev','tc_tk','tc_us','tc_rc'].forEach(k=>localStorage.removeItem(k));if(timer)clearInterval(timer);location.reload();}
-['m-event','m-task','m-user','m-setup','m-recur'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)closeM(id);});});
+['m-event','m-task','m-user','m-setup','m-recur','m-comment'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===this)closeM(id);});});
 
 // ═══ PWA & INSTALL ═══
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+const APP_VERSION='v7';
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js?v=7').then(reg=>{
+    setInterval(()=>reg.update(),30000);
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          console.log('New version found, reloading...');
+          window.location.reload();
+        }
+      });
+    });
+  }).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>window.location.reload());
+}
 function requestNotif(){if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission();}}
 setTimeout(requestNotif,3000);
 
-// Install App feature
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',(e)=>{
   e.preventDefault();
   deferredPrompt=e;
-  // Show install button on login screen
   const loginBtn=document.getElementById('install-login');
   if(loginBtn)loginBtn.style.display='block';
-  // Show install banner in app
   const banner=document.getElementById('install-banner');
   if(banner&&!localStorage.getItem('tc_install_dismissed'))banner.style.display='flex';
 });
 function installApp(){
   if(!deferredPrompt){
-    // Fallback: show manual instructions
     const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
     if(isIOS){alert('To install:\n1. Tap the Share button (bottom bar)\n2. Tap "Add to Home Screen"');}
     else{alert('To install:\n1. Tap ⋮ menu (top-right)\n2. Tap "Add to Home screen" or "Install app"');}
@@ -856,12 +1133,116 @@ function dismissInstall(){
   document.getElementById('install-banner').style.display='none';
   localStorage.setItem('tc_install_dismissed','1');
 }
-// Hide install UI if already installed
 window.addEventListener('appinstalled',()=>{
   document.getElementById('install-banner').style.display='none';
   document.getElementById('install-login').style.display='none';
   deferredPrompt=null;
 });
+
+// ═══ NOTIFICATION ENGINE ═══
+function showNotification(title,body){
+  // In-app vibration + sound
+  if(navigator.vibrate)navigator.vibrate([200,100,200]);
+  // Browser notification
+  if('Notification' in window&&Notification.permission==='granted'){
+    try{
+      const n=new Notification(title,{body,icon:'icon-192.png',badge:'icon-192.png',tag:title,renotify:true,vibrate:[200,100,200]});
+      n.onclick=()=>{window.focus();n.close();};
+      setTimeout(()=>n.close(),15000);
+    }catch(e){
+      // Fallback for mobile where Notification() constructor may fail
+      if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+        navigator.serviceWorker.controller.postMessage({type:'notify',title,body});
+      }
+    }
+  }
+  // Also show in-app toast
+  showToast(title,body);
+}
+function showToast(title,body){
+  let toast=document.getElementById('app-toast');
+  if(!toast){
+    toast=document.createElement('div');
+    toast.id='app-toast';
+    toast.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;padding:14px 16px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#FFF;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);transform:translateY(-100%);transition:transform .3s ease;cursor:pointer';
+    toast.onclick=()=>{toast.style.transform='translateY(-100%)';};
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML=`<div style="font-weight:800;font-size:11px;text-transform:uppercase;margin-bottom:2px">${title}</div><div style="opacity:.9;font-size:12px">${body}</div>`;
+  toast.style.transform='translateY(0)';
+  setTimeout(()=>{toast.style.transform='translateY(-100%)';},8000);
+}
+
+// Check every 60 seconds for reminders
+function checkReminders(){
+  if(!USER)return;
+  const now=new Date();
+  const today=fmtD(now);
+  const nowMin=now.getHours()*60+now.getMinutes();
+
+  // 1. Event reminders — 10 minutes before
+  Object.entries(events).forEach(([id,ev])=>{
+    if(ev.date!==today||!ev.start)return;
+    const[h,m]=ev.start.split(':').map(Number);
+    const evMin=h*60+m;
+    const diff=evMin-nowMin;
+    // Notify if event is 8-12 minutes away (covers the 60s check interval)
+    if(diff>=8&&diff<=12&&!notifiedEvents[id]){
+      notifiedEvents[id]=true;
+      const typeLabel={online:'Online Meeting',offline:'Offline Meeting',call:'Call'};
+      showNotification(
+        `📅 ${typeLabel[ev.type]||'Meeting'} in 10 min`,
+        `${ev.title}${ev.person?' with '+ev.person:''} at ${fmtT(ev.start)}`
+      );
+    }
+  });
+
+  // 2. Scheduled task reminders — 10 minutes before
+  Object.entries(tasks).forEach(([id,t])=>{
+    if(!t.start||t.dueDate!==today)return;
+    const[h,m]=t.start.split(':').map(Number);
+    const tMin=h*60+m;
+    const diff=tMin-nowMin;
+    if(diff>=8&&diff<=12&&!notifiedEvents['t_'+id]){
+      notifiedEvents['t_'+id]=true;
+      showNotification(
+        `📋 Task starts in 10 min`,
+        `${t.title} at ${fmtT(t.start)}`
+      );
+    }
+  });
+
+  // 3. Attention tasks — notify once per task
+  Object.entries(tasks).forEach(([id,t])=>{
+    if(t.status==='attention'&&!notifiedAttnTasks[id]){
+      const assignee=(t.assignedTo||'').toLowerCase();
+      const userL=USER.toLowerCase();
+      // Only notify if task is assigned to you or you're the owner
+      if(assignee===userL||ROLE==='owner'){
+        notifiedAttnTasks[id]=true;
+        showNotification(
+          '🚨 Task Needs Attention',
+          `"${t.title}"${t.assignedTo?' — assigned to '+t.assignedTo:''}`
+        );
+      }
+    }
+    // Clear notification tracking when status changes from attention
+    if(t.status!=='attention'&&notifiedAttnTasks[id]){
+      delete notifiedAttnTasks[id];
+    }
+  });
+}
+// Start reminder checks after app loads (every 60 seconds)
+setTimeout(()=>{checkReminders();setInterval(checkReminders,60000);},5000);
+// Also request notification permission more proactively
+function ensureNotifPermission(){
+  if('Notification' in window&&Notification.permission==='default'){
+    Notification.requestPermission().then(p=>{
+      if(p==='granted')console.log('Notifications enabled');
+    });
+  }
+}
+setTimeout(ensureNotifPermission,2000);
 </script>
 </body>
 </html>
