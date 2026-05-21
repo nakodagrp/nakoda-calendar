@@ -1,5 +1,5 @@
 // Service Worker for Team Calendar & Task Manager PWA
-const CACHE_NAME = 'team-cal-v7';
+const CACHE_NAME = 'team-cal-v9';
 const ASSETS = [
   'index.html',
   'TeamCalendar.html',
